@@ -14,6 +14,61 @@ class TweetCellTableViewCell: UITableViewCell {
     @IBOutlet weak var profileimageView: UIImageView!
     @IBOutlet weak var userNameLabel: UILabel!
     @IBOutlet weak var tweetContent: UILabel!
+    @IBOutlet weak var retweetButton: UIButton!
+    @IBOutlet weak var favButton: UIButton!
+    
+    var favorited: Bool = false
+    var tweetId: Int = -1
+
+    
+    @IBAction func favoriteTweet(_ sender: Any) {
+        let toBeFavorited = !favorited
+        if (toBeFavorited) {
+            TwitterAPICaller.client?.favoriteTweet(tweetID: tweetId, success: {
+                self.setFavorite(isFavorited: true)
+            }, failure: { (error) in
+                print("Favorite Did not succeed: \(error) ")
+            })
+        }else{
+            TwitterAPICaller.client?.unfavoriteTweet(tweetID: tweetId, success: {
+                self.setFavorite(isFavorited: false)
+            }, failure: { (error) in
+                print("Unfavorite Did not succeed: \(error)")
+            })
+        }
+        
+    }
+    
+    @IBAction func retweet(_ sender: Any) {
+        TwitterAPICaller.client?.retweet(tweetID: tweetId, success: {
+            self.setRetweeted(isRetweeted: true)
+        }, failure: { (error) in
+            print("Error in Retweed \(error)")
+        })
+    }
+    
+    func setRetweeted( isRetweeted: Bool){
+        if(isRetweeted) {
+            retweetButton.setImage( UIImage(named: "retweet-icon-green"), for: UIControl.State.normal)
+            retweetButton.isEnabled = false
+        }else {
+            retweetButton.setImage( UIImage(named: "retweet-icon"), for: UIControl.State.normal)
+                       retweetButton.isEnabled = true
+        }
+    }
+    
+    
+    func setFavorite ( isFavorited: Bool) {
+        favorited = isFavorited
+        if (favorited) {
+            favButton.setImage(UIImage(named:"favor-icon-red"), for: UIControl.State.normal)
+        }
+        else {
+            favButton.setImage(UIImage(named:"favor-icon"), for: UIControl.State.normal)
+        }
+    }
+    
+    
     
     override func awakeFromNib() {
         super.awakeFromNib()
